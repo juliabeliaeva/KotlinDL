@@ -4,7 +4,7 @@ import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
-internal fun BufferedImage.draw(block: (Graphics2D) -> Unit) {
+public fun BufferedImage.draw(block: (Graphics2D) -> Unit) {
     val graphics2D = createGraphics()
     try {
         block(graphics2D)
