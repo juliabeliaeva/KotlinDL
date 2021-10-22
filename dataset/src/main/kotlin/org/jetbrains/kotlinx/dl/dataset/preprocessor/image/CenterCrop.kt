@@ -5,9 +5,13 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
-import org.jetbrains.kotlinx.dl.dataset.image.copy
+import org.jetbrains.kotlinx.dl.dataset.image.copyToNDArray
+import org.jetbrains.kotlinx.dl.dataset.image.height
+import org.jetbrains.kotlinx.dl.dataset.image.width
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
-import java.awt.image.BufferedImage
+import org.jetbrains.kotlinx.multik.ndarray.data.D3
+import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
+import org.jetbrains.kotlinx.multik.ndarray.data.get
 
 /**
  * This image preprocessor defines centerCrop operation.
@@ -16,25 +20,23 @@ import java.awt.image.BufferedImage
  *
  * @property [size] target image size.
  */
-public class CenterCrop(public var size: Int = -1) : ImagePreprocessorBase() {
+public class CenterCrop(public var size: Int = -1) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         if (size <= 0) return inputShape
         return ImageShape(size.toLong(), size.toLong(), inputShape.channels)
     }
 
-    override fun apply(image: BufferedImage): BufferedImage {
+    override fun apply(image: NDArray<Float, D3>): NDArray<Float, D3> {
         if (size <= 0 || (image.width == size && image.height == size)) return image
 
         val paddedImage = padIfNecessary(image)
-        return paddedImage.getSubimage(
-            (paddedImage.width - size) / 2,
-            (paddedImage.height - size) / 2,
-            size, size
-        ).copy()
+        val x = (paddedImage.width - size) / 2
+        val y = (paddedImage.height - size) / 2
+        return paddedImage[y..y + size, x..x + size].copyToNDArray()
     }
 
-    private fun padIfNecessary(image: BufferedImage): BufferedImage {
+    private fun padIfNecessary(image: NDArray<Float, D3>): NDArray<Float, D3> {
         if (image.width < size || image.height < size) {
             val verticalSpace = (size - image.height).coerceAtLeast(0)
             val horizontalSpace = (size - image.width).coerceAtLeast(0)

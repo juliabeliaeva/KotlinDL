@@ -27,7 +27,7 @@ public class Cropping(
     public var bottom: Int = 1,
     public var left: Int = 1,
     public var right: Int = 1
-) : ImagePreprocessorBase() {
+) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(

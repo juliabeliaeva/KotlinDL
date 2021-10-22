@@ -30,7 +30,7 @@ public class Rotate(
     public var interpolation: InterpolationType = InterpolationType.BICUBIC,
     public var renderingSpeed: RenderingSpeed = RenderingSpeed.MEDIUM,
     public var enableAntialiasing: Boolean = true
-) : ImagePreprocessorBase() {
+) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(inputShape.width, inputShape.height, inputShape.channels)

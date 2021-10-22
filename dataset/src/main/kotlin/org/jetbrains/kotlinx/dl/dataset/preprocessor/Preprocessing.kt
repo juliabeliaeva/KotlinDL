@@ -5,11 +5,11 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor
 
-import org.jetbrains.kotlinx.dl.dataset.image.ImageConverter
-import org.jetbrains.kotlinx.dl.dataset.image.getShape
+import org.jetbrains.kotlinx.dl.dataset.image.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessing
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessorBase
-import java.awt.image.BufferedImage
+import org.jetbrains.kotlinx.multik.ndarray.data.D3
+import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
 import java.io.File
 
 /**
@@ -53,15 +53,15 @@ public class Preprocessing {
 
     internal fun handleFile(file: File): Pair<FloatArray, ImageShape> {
         val image = file.inputStream().use { inputStream -> ImageConverter.toBufferedImage(inputStream) }
-        return handleImage(image, file.name)
+        return handleImage(image.toNDArray(), file.name)
     }
 
-    internal fun handleImage(inputImage: BufferedImage, imageName: String): Pair<FloatArray, ImageShape> {
+    internal fun handleImage(inputImage: NDArray<Float, D3>, imageName: String, colorMode: ColorMode): Pair<FloatArray, ImageShape> {
         var image = inputImage
         if (::imagePreprocessingStage.isInitialized) {
             for (operation in imagePreprocessingStage.operations) {
                 image = operation.apply(image)
-                (operation as? ImagePreprocessorBase)?.save?.save(imageName, image)
+                (operation as? ImagePreprocessorBase)?.save?.save(imageName, image.toImage())
             }
         }
 

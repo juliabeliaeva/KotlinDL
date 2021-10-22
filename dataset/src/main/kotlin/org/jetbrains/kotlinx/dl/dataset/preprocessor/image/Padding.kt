@@ -27,7 +27,7 @@ public class Padding(
     public var left: Int = 0,
     public var right: Int = 0,
     public var mode: PaddingMode = PaddingMode.Black
-) : ImagePreprocessorBase() {
+) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(
             inputShape.width?.plus(left + right.toLong()),
