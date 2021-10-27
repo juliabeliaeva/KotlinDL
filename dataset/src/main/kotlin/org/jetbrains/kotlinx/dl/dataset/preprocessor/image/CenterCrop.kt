@@ -5,9 +5,7 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
-import org.jetbrains.kotlinx.dl.dataset.image.copyToNDArray
-import org.jetbrains.kotlinx.dl.dataset.image.height
-import org.jetbrains.kotlinx.dl.dataset.image.width
+import org.jetbrains.kotlinx.dl.dataset.image.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
 import org.jetbrains.kotlinx.multik.ndarray.data.D3
 import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
@@ -20,23 +18,24 @@ import org.jetbrains.kotlinx.multik.ndarray.data.get
  *
  * @property [size] target image size.
  */
-public class CenterCrop(public var size: Int = -1) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
+public class CenterCrop(public var size: Int = -1) : ImagePreprocessorBase() {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         if (size <= 0) return inputShape
         return ImageShape(size.toLong(), size.toLong(), inputShape.channels)
     }
 
-    override fun apply(image: NDArray<Float, D3>): NDArray<Float, D3> {
+    override fun apply(image: MkImage): MkImage {
         if (size <= 0 || (image.width == size && image.height == size)) return image
 
         val paddedImage = padIfNecessary(image)
         val x = (paddedImage.width - size) / 2
         val y = (paddedImage.height - size) / 2
-        return paddedImage[y..y + size, x..x + size].copyToNDArray()
+        // todo
+        return NDImage(paddedImage[y..y + size, x..x + size].copy() as NDArray<Float, D3>, image.colorMode)
     }
 
-    private fun padIfNecessary(image: NDArray<Float, D3>): NDArray<Float, D3> {
+    private fun padIfNecessary(image: MkImage): MkImage {
         if (image.width < size || image.height < size) {
             val verticalSpace = (size - image.height).coerceAtLeast(0)
             val horizontalSpace = (size - image.width).coerceAtLeast(0)

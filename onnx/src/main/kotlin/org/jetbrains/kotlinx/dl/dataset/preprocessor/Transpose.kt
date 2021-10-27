@@ -5,6 +5,8 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor
 
+import org.jetbrains.kotlinx.dl.dataset.image.MkImage
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessorBase
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.D3
@@ -15,8 +17,8 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.toList
  *
  * @property [axes] Array of ints, default value is related to the typical transpose task for H, W, C to C, W, H tensor format conversion.
  */
-public class Transpose(public var axes: IntArray = intArrayOf(2, 0, 1)) : Preprocessor {
-    override fun apply(data: FloatArray, inputShape: ImageShape): FloatArray {
+public class Transpose(public var axes: IntArray = intArrayOf(2, 0, 1)) : ImagePreprocessorBase {
+    override fun apply(image: MkImage): MkImage {
         val tensorShape = intArrayOf(
             inputShape.width!!.toInt(),
             inputShape.height!!.toInt(),
@@ -24,6 +26,7 @@ public class Transpose(public var axes: IntArray = intArrayOf(2, 0, 1)) : Prepro
         )
         val ndArray = mk.ndarray<Float, D3>(data.toList(), tensorShape)
         // TODO: add output shape as an result
+        image.transpose(axes)
         return ndArray.transpose(*axes).toList().toFloatArray() // TODO: a lot of copying
     }
 }

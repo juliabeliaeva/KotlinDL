@@ -1,5 +1,10 @@
 package org.jetbrains.kotlinx.dl.dataset.preprocessor
 
+import org.jetbrains.kotlinx.dl.dataset.image.MkImage
+import org.jetbrains.kotlinx.dl.dataset.image.channels
+import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessor
+import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.math.sqrt
 
 /**
@@ -11,12 +16,12 @@ import kotlin.math.sqrt
  * @property [mean] an array of mean values for each channel.
  * @property [std] an array of std values for each channel.
  */
-public class Normalizing : Preprocessor {
+public class Normalizing : ImagePreprocessor {
     public lateinit var mean: FloatArray
     public lateinit var std: FloatArray
 
-    override fun apply(data: FloatArray, inputShape: ImageShape): FloatArray {
-        val channels = inputShape.channels!!.toInt()
+    override fun apply(image: MkImage): MkImage {
+        val channels = image.colorMode.channels
         require(mean.size == channels) {
             "Expected to get one mean value for each image channel. " +
                     "However ${mean.size} values was given for image with $channels channels."
@@ -26,11 +31,13 @@ public class Normalizing : Preprocessor {
                     "However ${std.size} values was given for image with $channels channels."
         }
 
-        for (i in data.indices) {
-            data[i] = (data[i] - mean[i % channels]) / std[i % channels]
+        for (c in 0 until image.channels) {
+            val dataForChannel = image.mutableView(c, 2)
+            dataForChannel -= mean[c]
+            dataForChannel /= mean[c]
         }
 
-        return data
+        return image
     }
 }
 

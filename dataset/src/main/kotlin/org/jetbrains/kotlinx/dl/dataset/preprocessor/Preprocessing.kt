@@ -8,8 +8,7 @@ package org.jetbrains.kotlinx.dl.dataset.preprocessor
 import org.jetbrains.kotlinx.dl.dataset.image.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessing
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.image.ImagePreprocessorBase
-import org.jetbrains.kotlinx.multik.ndarray.data.D3
-import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.toFloatArray
 import java.io.File
 
 /**
@@ -53,10 +52,10 @@ public class Preprocessing {
 
     internal fun handleFile(file: File): Pair<FloatArray, ImageShape> {
         val image = file.inputStream().use { inputStream -> ImageConverter.toBufferedImage(inputStream) }
-        return handleImage(image.toNDArray(), file.name)
+        return handleImage(image.toMkImage(), file.name)
     }
 
-    internal fun handleImage(inputImage: NDArray<Float, D3>, imageName: String, colorMode: ColorMode): Pair<FloatArray, ImageShape> {
+    internal fun handleImage(inputImage: MkImage, imageName: String): Pair<FloatArray, ImageShape> {
         var image = inputImage
         if (::imagePreprocessingStage.isInitialized) {
             for (operation in imagePreprocessingStage.operations) {
@@ -65,16 +64,7 @@ public class Preprocessing {
             }
         }
 
-        var tensor = ImageConverter.toRawFloatArray(image)
-        val shape = image.getShape()
-
-        if (::tensorPreprocessingStage.isInitialized) {
-            for (operation in tensorPreprocessingStage.operations) {
-                tensor = operation.apply(tensor, shape)
-            }
-        }
-
-        return Pair(tensor, shape)
+        return Pair(image.toFloatArray(), image.getShape())
     }
 }
 

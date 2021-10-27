@@ -5,10 +5,13 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
-import org.jetbrains.kotlinx.dl.dataset.image.copy
+import org.jetbrains.kotlinx.dl.dataset.image.MkImage
+import org.jetbrains.kotlinx.dl.dataset.image.NDImage
 import org.jetbrains.kotlinx.dl.dataset.image.getShape
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
-import java.awt.image.BufferedImage
+import org.jetbrains.kotlinx.multik.ndarray.data.D3
+import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
+import org.jetbrains.kotlinx.multik.ndarray.data.get
 
 /**
  * This image preprocessor defines the Crop operation.
@@ -27,7 +30,7 @@ public class Cropping(
     public var bottom: Int = 1,
     public var left: Int = 1,
     public var right: Int = 1
-) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
+) : ImagePreprocessorBase() {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(
@@ -37,13 +40,12 @@ public class Cropping(
         )
     }
 
-    override fun apply(image: BufferedImage): BufferedImage {
+    override fun apply(image: MkImage): MkImage {
         val croppedImageShape = getOutputShape(image.getShape())
 
-        return image.getSubimage(
-            left, top,
-            croppedImageShape.width!!.toInt(),
-            croppedImageShape.height!!.toInt()
-        ).copy()
+        return NDImage(
+            image[top..croppedImageShape.height!!.toInt(),
+                    left..croppedImageShape.width!!.toInt()] as NDArray<Float, D3>, image.colorMode
+        )
     }
 }

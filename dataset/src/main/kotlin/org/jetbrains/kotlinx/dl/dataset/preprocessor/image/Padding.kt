@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
-import org.jetbrains.kotlinx.dl.dataset.image.draw
+import org.jetbrains.kotlinx.dl.dataset.image.*
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -27,7 +27,7 @@ public class Padding(
     public var left: Int = 0,
     public var right: Int = 0,
     public var mode: PaddingMode = PaddingMode.Black
-) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
+) : ImagePreprocessorBase() {
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(
             inputShape.width?.plus(left + right.toLong()),
@@ -36,10 +36,10 @@ public class Padding(
         )
     }
 
-    override fun apply(image: BufferedImage): BufferedImage {
-        val result = BufferedImage(image.width + left + right, image.height + top + bottom, image.type)
+    override fun apply(image: MkImage): MkImage {
+        val result = BufferedImage(image.width + left + right, image.height + top + bottom, image.colorMode.imageType())
         result.draw { graphics2D ->
-            graphics2D.drawImage(image, left, top, null)
+            graphics2D.drawImage(image.toImage(image.colorMode), left, top, null)
             when (mode) {
                 is PaddingMode.Fill -> {
                     graphics2D.color = (mode as PaddingMode.Fill).color
@@ -50,7 +50,7 @@ public class Padding(
                 }
             }
         }
-        return result
+        return result.toMkImage()
     }
 }
 

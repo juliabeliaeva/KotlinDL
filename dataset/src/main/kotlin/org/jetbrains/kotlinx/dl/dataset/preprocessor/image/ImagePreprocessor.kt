@@ -5,10 +5,8 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
-import org.jetbrains.kotlinx.dl.dataset.image.ColorMode
+import org.jetbrains.kotlinx.dl.dataset.image.MkImage
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
-import org.jetbrains.kotlinx.multik.ndarray.data.D3
-import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
 import java.awt.image.BufferedImage
 
 /**
@@ -33,7 +31,7 @@ public interface ImagePreprocessor {
      *
      * @return processed image
      */
-    public fun apply(image: NDArray<Float, D3>, colorMode: ColorMode): Pair<NDArray<Float, D3>, ColorMode>
+    public fun apply(image: MkImage): MkImage
 }
 
 /**
@@ -42,12 +40,4 @@ public interface ImagePreprocessor {
  */
 public abstract class ImagePreprocessorBase : ImagePreprocessor {
     internal var save: ImageSaver? = null
-}
-
-public interface ColorModePreservingPreprocessor : ImagePreprocessor {
-    public override fun apply(image: NDArray<Float, D3>, colorMode: ColorMode): Pair<NDArray<Float, D3>, ColorMode> {
-        return Pair(apply(image), colorMode)
-    }
-
-    public fun apply(image: NDArray<Float, D3>): NDArray<Float, D3>
 }

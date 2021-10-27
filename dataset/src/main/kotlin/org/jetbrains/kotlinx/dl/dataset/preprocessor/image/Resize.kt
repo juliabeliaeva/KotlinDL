@@ -5,6 +5,10 @@
 
 package org.jetbrains.kotlinx.dl.dataset.preprocessor.image
 
+import org.jetbrains.kotlinx.dl.dataset.image.MkImage
+import org.jetbrains.kotlinx.dl.dataset.image.imageType
+import org.jetbrains.kotlinx.dl.dataset.image.toImage
+import org.jetbrains.kotlinx.dl.dataset.image.toMkImage
 import org.jetbrains.kotlinx.dl.dataset.preprocessor.ImageShape
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
@@ -30,14 +34,14 @@ public class Resize(
     public var interpolation: InterpolationType = InterpolationType.BILINEAR,
     public var renderingSpeed: RenderingSpeed = RenderingSpeed.MEDIUM,
     public var enableAntialiasing: Boolean = true
-) : ImagePreprocessorBase(), ColorModePreservingPreprocessor {
+) : ImagePreprocessorBase() {
 
     override fun getOutputShape(inputShape: ImageShape): ImageShape {
         return ImageShape(outputWidth.toLong(), outputHeight.toLong(), inputShape.channels)
     }
 
-    override fun apply(image: BufferedImage): BufferedImage {
-        val resizedImage = BufferedImage(outputWidth, outputHeight, image.type)
+    override fun apply(image: MkImage): MkImage {
+        val resizedImage = BufferedImage(outputWidth, outputHeight, image.colorMode.imageType())
         val graphics2D = resizedImage.createGraphics()
 
         val renderingHint = when (interpolation) {
@@ -59,9 +63,9 @@ public class Resize(
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         }
 
-        graphics2D.drawImage(image, 0, 0, outputWidth, outputHeight, null)
+        graphics2D.drawImage(image.toImage(image.colorMode), 0, 0, outputWidth, outputHeight, null)
         graphics2D.dispose()
 
-        return resizedImage
+        return resizedImage.toMkImage()
     }
 }
