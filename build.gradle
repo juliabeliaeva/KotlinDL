@@ -47,3 +47,23 @@ task setTeamcityVersion {
         println("##teamcity[buildNumber '$version']")
     }
 }
+
+task fatJar(type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest {
+        attributes 'Implementation-Version': '1.15'
+    }
+    classifier 'all'
+    subprojects.each {subproject ->
+        if (name !in unpublishedSubprojects) {
+            dependsOn "${subproject.name}:jar"
+            from { subproject.configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+        }
+    }
+    with jar
+}
+
+artifacts {
+    archives fatJar
+}
